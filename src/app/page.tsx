@@ -1,21 +1,9 @@
 'use client'
 
-import { Amplify } from 'aws-amplify'
 import { generateClient } from 'aws-amplify/data'
 import { useState, useEffect } from 'react'
 
-import { Authenticator } from '@aws-amplify/ui-react'
-import '@aws-amplify/ui-react/styles.css'
-
-import type { Schema } from '@/amplify/data/resource'
-import outputs from '@/amplify_outputs.json'
-
-import './app.css'
-
-
-
-
-Amplify.configure(outputs);
+import type { Schema } from '@/../amplify/data/resource'
 
 const client = generateClient<Schema>();
 
@@ -42,8 +30,7 @@ export default function App() {
         client.models.Todo.delete({ id })
     }
 
-    return <Authenticator>
-        {({ signOut, user }) => (<main>
+    return <main>
             <h1>My todos</h1>
             <button onClick={createTodo}>+ new</button>
             <ul>
@@ -58,8 +45,6 @@ export default function App() {
                     Review next steps of this tutorial.
                 </a>
             </div>
-            <button onClick={signOut}>Sign out</button>
+            {/* <button onClick={signOut}>Sign out</button> */}
         </main>
-        )}
-    </Authenticator>
 }
