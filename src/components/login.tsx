@@ -14,7 +14,7 @@ export interface LoginProps {
 
 function Login({ user }: LoginProps) {
     useEffect(() => {
-        if(user) redirect("/manage")
+        if(user) redirect("/")
     }, [user])
     return null
 }

@@ -7,7 +7,7 @@ export interface LogoProps {
 
 export default function Logo({className}: LogoProps) {
 
-    return <svg className={className} viewBox="0 0 100 50">
+    return <svg className={className} viewBox="20 0 80 50">
         
         <path d="M 23.5 40 L 25.5 12" stroke="black" strokeWidth="2" fill="transparent"/>
         <path d="M 25.5 40 L 23.5 12" stroke="red" strokeWidth="1.5" fill="transparent"/>

@@ -1,7 +1,9 @@
+
 import type { Metadata } from 'next'
 import { Inter, Roboto_Mono } from 'next/font/google'
 
 import ConfigureAmplifyClientSide from '@/components/configure-amplify'
+import Sidebar from '@/components/sidebar'
 
 import './globals.css'
 
@@ -23,10 +25,14 @@ export const metadata: Metadata = {
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
-    return <html lang="en-nz" className={`${inter.variable} ${roboto_mono.variable} h-full bg-white`}>
+    return <html lang="en-nz" className={`${inter.variable} ${roboto_mono.variable} h-full bg-gray-50`}>
         <body className="h-full">
-            <ConfigureAmplifyClientSide/>
-            {children}
+            <ConfigureAmplifyClientSide>
+                <Sidebar/>
+                <main className="lg:pl-72 py-10">
+                    <div className="px-4 sm:px-6 lg:px-8">{children}</div>
+                </main>
+            </ConfigureAmplifyClientSide>
         </body>
     </html>
 }
