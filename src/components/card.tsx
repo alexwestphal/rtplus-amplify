@@ -5,7 +5,7 @@ export default function Card({ className, ...props}: React.ComponentPropsWithout
 
     return <div 
         {...props}
-        className={clsx(className, 'divide-y divide-gray-200 overflow-hidden rounded-lg bg-white shadow')}
+        className={clsx(className, 'divide-y divide-gray-200 overflow-hidden sm:rounded-lg bg-white shadow ring-1 ring-black ring-opacity-5')}
     />
 
 }

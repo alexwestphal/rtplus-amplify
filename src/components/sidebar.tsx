@@ -92,7 +92,7 @@ function SidebarBody() {
                 <Logo className="h-10"/>
             </div>
             <Menu as="div" className="relative">
-                <MenuButton className="rouded-md text-gray-400 hover:bg-gray-100 py-2">
+                <MenuButton className="rouded-md text-gray-400 hover:bg-gray-100 p-2">
                     <span className="sr-only">Open user menu</span>
                     <UserCircleIcon aria-hidden="true" className="h-6 w-6" />
                 </MenuButton>
@@ -102,7 +102,7 @@ function SidebarBody() {
                 >
                     <MenuItem>
                         <Link
-                            href="/profile"
+                            href="/user-settings"
                             className="block px-3 py-1 text-sm leading-6 text-gray-900 data-[focus]:bg-gray-50"
                         >
                             Your profile
