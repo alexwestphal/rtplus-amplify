@@ -4,6 +4,7 @@ import { Amplify } from 'aws-amplify'
 
 import { Authenticator } from '@aws-amplify/ui-react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 
 import outputs from '@/../amplify_outputs.json'
 
@@ -15,6 +16,7 @@ export default function ConfigureAmplifyClientSide({ children }: { children: Rea
     return <Authenticator.Provider>
         <QueryClientProvider client={queryClient}>
             {children}
+            <ReactQueryDevtools initialIsOpen={false}/>
         </QueryClientProvider>
     </Authenticator.Provider>
 }

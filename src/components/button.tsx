@@ -1,3 +1,7 @@
+/**
+ * Button component derived from Catalyst UI.
+ */
+
 import clsx from 'clsx'
 import React, { forwardRef } from 'react'
 

@@ -23,3 +23,10 @@ See [CONTRIBUTING](CONTRIBUTING.md#security-issue-notifications) for more inform
 ## License
 
 This library is licensed under the MIT-0 License. See the LICENSE file.
+
+## Running Locally
+
+- **Login to AWS**: `aws sso login --profile amplify-admin`
+- **Launch Sandbox**: `npx ampx sandbox --profile amplify-admin`
+- **Start Dev Server**: `npm run dev`
+- **Build D4H Schema**: `npx openapi-typescript ./resources/d4h-api-schema.json -o ./src/lib/d4h-schema.d.ts`

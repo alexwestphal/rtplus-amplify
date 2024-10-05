@@ -2,11 +2,13 @@ import { type ClientSchema, a, defineData } from '@aws-amplify/backend'
 
 
 const schema = a.schema({
-    ExternalAPIKey: a
+    D4HAccessKey: a
         .model({
-            key: a.string(),
-            service: a.enum(['D4H']),
-            metadata: a.json()
+            key: a.string().required(),
+            label: a.string().required(),
+            teamId: a.integer().required(),
+            teamName: a.string().required(),
+            primary: a.boolean().default(false)
         })
         .authorization((allow) => [allow.owner()]),
     Todo: a
