@@ -6,7 +6,7 @@ import Divider from '@/components/divider'
 import Heading from '@/components/heading'
 
 import D4HAccessKeysSection from './d4h-access-keys-section'
-
+import PersonalDetailsSection from './personal-details-section'
 
 export default function UserSettingsPage() {
     return <div className="mx-auto max-w-7xl space-y-8 sm:space-y-10">
@@ -14,52 +14,7 @@ export default function UserSettingsPage() {
 
         <Divider/>
 
-        <section>
-            <div className="sm:flex sm:items-center">
-                <div className="sm:flex-auto">
-                    <Heading level={2}>Personal</Heading>
-                    <p className="mt-2 text-sm text-gray-700">
-                        Your basic personal details as configured on D4H.
-                    </p>
-                </div>
-            </div>
-            <Alert className="mt-8" severity="warning" title="Not Connected">
-                A configured D4H key is required to fetch this data.
-            </Alert>
-            {/* <Card className="mt-8">
-                <CardContent>
-                    <dl className="space-y-6 divide-y divide-gray-100 text-sm leading-6">
-                        <div className="pt-6 sm:flex">
-                        <dt className="font-medium text-gray-900 sm:w-64 sm:flex-none sm:pr-6">Full name</dt>
-                        <dd className="mt-1 flex justify-between gap-x-6 sm:mt-0 sm:flex-auto">
-                            <div className="text-gray-900">Tom Cook</div>
-                            <button type="button" className="font-semibold text-indigo-600 hover:text-indigo-500">
-                            Update
-                            </button>
-                        </dd>
-                        </div>
-                        <div className="pt-6 sm:flex">
-                        <dt className="font-medium text-gray-900 sm:w-64 sm:flex-none sm:pr-6">Email address</dt>
-                        <dd className="mt-1 flex justify-between gap-x-6 sm:mt-0 sm:flex-auto">
-                            <div className="text-gray-900">tom.cook@example.com</div>
-                            <button type="button" className="font-semibold text-indigo-600 hover:text-indigo-500">
-                            Update
-                            </button>
-                        </dd>
-                        </div>
-                        <div className="pt-6 sm:flex">
-                        <dt className="font-medium text-gray-900 sm:w-64 sm:flex-none sm:pr-6">Title</dt>
-                        <dd className="mt-1 flex justify-between gap-x-6 sm:mt-0 sm:flex-auto">
-                            <div className="text-gray-900">Human Resources Manager</div>
-                            <button type="button" className="font-semibold text-indigo-600 hover:text-indigo-500">
-                            Update
-                            </button>
-                        </dd>
-                        </div>
-                    </dl>
-                </CardContent>
-            </Card> */}
-        </section>
+        <PersonalDetailsSection/>
 
         <Divider/>
 

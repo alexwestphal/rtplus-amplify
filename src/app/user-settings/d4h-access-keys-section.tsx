@@ -5,29 +5,34 @@ import { useState } from 'react'
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 
-import { Schema, amplifyClient } from '@/lib/amplify-client'
-
 import Alert from '@/components/alert'
 import Button from '@/components/button'
 import Card from '@/components/card'
+import { Checkbox, CheckboxField } from '@/components/checkbox'
 import Dialog, { DialogTitle, DialogDescription, DialogBody, DialogActions } from '@/components/dialog'
-import { Field, Label } from '@/components/field'
+import { Description, Field, Label } from '@/components/field'
+import Heading from '@/components/heading'
 import Input from '@/components/input'
+import Spinner from '@/components/spinner'
 import Table, { TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/table'
 import Text from '@/components/text'
 
-import { D4HClient } from '@/lib/d4h-api/client'
+import { Schema, amplifyClient } from '@/lib/amplify-client'
+import { D4hFetchClient } from '@/lib/d4h-api/client'
 import type { WhoamiResponse } from '@/lib/d4h-api/whoami-response'
-import Spinner from '@/components/spinner'
-import { Checkbox } from '@/components/checkbox'
+
+
+
 
 const QUERY_KEY = 'd4hAccessKeys'
 
 type AccessKey = Schema['D4HAccessKey']['type']
-type AccessKeyPartial = { key: string, label: string, teamName: string, teamId: number }
+type AccessKeyPartial = Pick<AccessKey, 'key' | 'label' | 'memberId' | 'teamName' | 'teamId' | 'primary'> // { key: string, label: string, memberId: number, teamName: string, teamId: number, primary: boolean }
+type AccessKeyUpdate = Pick<AccessKey, 'id' | 'label' | 'primary'>
 
 export default function D4HAccessKeysSection() {
     const [addDialogOpen, setAddDialogOpen] = useState(false)
+    const [updateSubject, setUpdateSubject] = useState<AccessKey | null>(null)
     const [deletionSubject, setDeletionSubject] = useState<AccessKey | null>(null)
 
     const queryClient = useQueryClient()
@@ -43,6 +48,13 @@ export default function D4HAccessKeysSection() {
     const createMutation = useMutation({
         mutationFn: async (accessKey: AccessKeyPartial) => {
             
+            if(accessKey.primary) {
+                await Promise.all(query.data!!
+                    .filter(accessKey => accessKey.primary)
+                    .map(accessKey => amplifyClient.models.D4HAccessKey.update({ ...accessKey, primary: false })
+                ))
+            }
+
             await amplifyClient.models.D4HAccessKey.create(accessKey)
         },
         onMutate: async (newAccessKey) => {
@@ -71,11 +83,70 @@ export default function D4HAccessKeysSection() {
         }
     })
 
+    const updateMutation = useMutation({
+        mutationFn: async (update: AccessKeyUpdate) => {
+
+            if(update.primary) {
+                await Promise.all(query.data!!
+                    .filter(accessKey => accessKey.primary && accessKey.id != update.id)
+                    .map(accessKey => amplifyClient.models.D4HAccessKey.update({ ...accessKey, primary: false }))    
+                )
+            }
+
+            await amplifyClient.models.D4HAccessKey.update(update)
+        },
+        onMutate: async (updatedAccessKey) => {
+            // Cancel any outgoing refetches (so they don't overwrite our optimistic update)
+            await queryClient.cancelQueries({ queryKey: [QUERY_KEY]})
+
+            // Snapshot the previous valie
+            const previousAccessKeys = queryClient.getQueryData([QUERY_KEY])
+
+            if(previousAccessKeys) {
+                queryClient.setQueryData([QUERY_KEY], (old: AccessKey[]) => 
+                    old.map(oldAccessKey => oldAccessKey.id == updatedAccessKey.id ? ({ ...oldAccessKey, ...updatedAccessKey }) : oldAccessKey)
+                )
+            }
+
+            // Return a context object with the snapshotted value
+            return { previousAccessKeys }
+
+        },
+        onError: (error, updatedAccessKey, context) => {
+            console.error("Error saving accesskey:", error, updatedAccessKey)
+            if(context?.previousAccessKeys) {
+                queryClient.setQueryData([QUERY_KEY], context.previousAccessKeys)
+            }
+        },
+        onSettled: () => {
+            queryClient.invalidateQueries({ queryKey: [QUERY_KEY] })
+        }
+    })
+
     const deleteMutation = useMutation({
         mutationFn: async (accessKeyId: string) => {
             await amplifyClient.models.D4HAccessKey.delete({ id: accessKeyId })
         },
-        onSuccess: () => {
+        onMutate: async (accessKeyId) => {
+            await queryClient.cancelQueries({ queryKey: [QUERY_KEY] })
+
+            const previousAccessKeys = queryClient.getQueryData([QUERY_KEY])
+
+            if(previousAccessKeys) {
+                queryClient.setQueryData([QUERY_KEY], (old: AccessKey[]) =>
+                    old.filter(accessKey => accessKey.id != accessKeyId)
+                )
+            }
+
+            return { previousAccessKeys }
+        },
+        onError: (error, accessKeyId, context) => {
+            console.error("Error deleting accesskey:", error, accessKeyId)
+            if(context?.previousAccessKeys) {
+                queryClient.setQueryData([QUERY_KEY], context.previousAccessKeys)
+            }
+        },
+        onSettled: () => {
             queryClient.invalidateQueries({ queryKey: [QUERY_KEY] })
         }
     })
@@ -83,7 +154,7 @@ export default function D4HAccessKeysSection() {
     return <section>
         <div className="sm:flex sm:items-center">
             <div className="sm:flex-auto">
-                <h2 className="text-base font-semibold leading-6 text-gray-900">D4H Access Keys</h2>
+                <Heading level={2}>D4H Access Keys</Heading>
                 <p className="mt-2 text-sm text-gray-700">
                     A list of the D4H access keys that you have configured.
                 </p>
@@ -95,16 +166,17 @@ export default function D4HAccessKeysSection() {
             </div>
         </div>
         
-        <Card className="mt-8">
+        <Card className="mt-4 px-4">
             { query.isError && <div>Error Loading D4H Access Key</div>}
             { query.isLoading && <div>Loading D4H Access Keys...</div>}
             { query.isSuccess && query.data && (query.data.length
-                ? <Table bleed>
+                ? <Table>
                     <TableHead>
                         <TableRow>
                             <TableHeader>Label</TableHeader>
                             <TableHeader>Team</TableHeader>
-                            <TableHeader>Created</TableHeader>
+                            <TableHeader>Created At</TableHeader>
+                            <TableHeader className="text-center">Primary</TableHeader>
                             <TableHeader>
                                 <span className="sr-only">Edit</span>
                             </TableHeader>
@@ -116,7 +188,11 @@ export default function D4HAccessKeysSection() {
                                 <TableCell className="text-gray-900 font-medium">{accessKey.label}</TableCell>
                                 <TableCell className="text-gray-500">{accessKey.teamName}</TableCell>
                                 <TableCell className="text-gray-500">{accessKey.createdAt}</TableCell>
+                                <TableCell className="text-gray-500 text-center">{accessKey.primary ? "YES" : null}</TableCell>
                                 <TableCell className="text-right">
+                                    <Button plain onClick={() => setUpdateSubject(accessKey)}>
+                                        Update<span className="sr-only"> Access Key</span>
+                                    </Button>
                                     <Button plain onClick={() => setDeletionSubject(accessKey)}>
                                         Delete<span className="sr-only"> Access Key</span>
                                     </Button>
@@ -137,6 +213,12 @@ export default function D4HAccessKeysSection() {
             onClose={() => setAddDialogOpen(false)}
             onSubmit={createMutation.mutate}
         />
+        {updateSubject != null && <UpdateAccessKeyDialogProps
+            accessKey={updateSubject}
+            open={updateSubject != null}
+            onClose={() => setUpdateSubject(null)}
+            onUpdate={updateMutation.mutate}
+        />}
         {deletionSubject != null && <DeleteAccessKeyDialog
             accessKey={deletionSubject}
             open={deletionSubject != null}
@@ -157,24 +239,25 @@ function NewAccessKeyDialog({ open, onClose, onSubmit }: NewAccessKeyDialogProps
 
     const [key, setKey] = useState("")
     const [label, setLabel] = useState("")
+    const [primary, setPrimary] = useState(true)
 
     type Validation = { status: 'Init' } | { status: 'Validating' } | { status: 'Error', message: string } | { status: 'Success', data: WhoamiResponse } | { status: 'Submitting' }
 
     const [validation, setValidation] = useState<Validation>({ status: 'Init' })
-    const [selectedTeam, setSelectedTeam] = useState<{ teamId: number, teamName: string } | null>(null)
+    const [selectedMemberId, setSelectedMemberId] = useState<number | null>(null)
 
     function handleClose() {
         setKey("")
         setLabel("")
         setValidation({ status: 'Init' })
-        setSelectedTeam(null)
+        setSelectedMemberId(null)
         onClose()
     }
 
     async function handleValidate() {
         setValidation({ status: 'Validating' })
 
-        const { data, error, response } = await D4HClient.GET('/v3/whoami', { headers: { Authorization: `Bearer ${key}` }});
+        const { data, error, response } = await D4hFetchClient.GET('/v3/whoami', { headers: { Authorization: `Bearer ${key}` }});
 
         if(error) {
             setValidation({ status: 'Error', message: error })
@@ -186,10 +269,12 @@ function NewAccessKeyDialog({ open, onClose, onSubmit }: NewAccessKeyDialogProps
 
     function handleSave() {
 
-        if(selectedTeam != null) {
+        if(validation.status == 'Success' && selectedMemberId != null) {
             setValidation({ status: 'Submitting' })
 
-            onSubmit({ key, label, ...selectedTeam })
+            const team = validation.data.members.find(member => member.id == selectedMemberId)!!.owner
+
+            onSubmit({ key, label, memberId: selectedMemberId, teamId: team.id, teamName: team.title, primary })
 
             handleClose()
         }
@@ -221,6 +306,11 @@ function NewAccessKeyDialog({ open, onClose, onSubmit }: NewAccessKeyDialogProps
                     onChange={ev => setLabel(ev.target.value)}
                 />
             </Field>
+            <CheckboxField className="mb-4">
+                <Checkbox checked={primary} onChange={(checked) => setPrimary(checked)}/>
+                <Label>Make primary</Label>
+                <Description>Mark this access key as primary (default) access key.</Description>
+            </CheckboxField>
             {validation.status == 'Error' && <Alert severity='error' title={validation.message}/>}
             {validation.status == 'Success' && <>
                 <Text className="mt-8 mb-4">Found memberships to the following teams. Please select the one you would like to use with this access key.</Text>
@@ -243,10 +333,10 @@ function NewAccessKeyDialog({ open, onClose, onSubmit }: NewAccessKeyDialogProps
                                     <TableCell className="text-center">{member.permissions ? "YES" : "NO"}</TableCell>
                                     <TableCell className="text-center">
                                         <Checkbox 
-                                            checked={selectedTeam?.teamId == member.owner.id}
+                                            checked={selectedMemberId == member.id}
                                             onChange={(checked) => {
-                                                if(checked) setSelectedTeam({ teamId: member.owner.id, teamName: member.owner.title })
-                                                else setSelectedTeam(null)
+                                                if(checked) setSelectedMemberId(member.id)
+                                                else setSelectedMemberId(null)
                                             }}    
                                         />
                                     </TableCell>
@@ -265,8 +355,47 @@ function NewAccessKeyDialog({ open, onClose, onSubmit }: NewAccessKeyDialogProps
             { validation.status == 'Validating' || validation.status == 'Submitting' && <Spinner/>}
             { validation.status == 'Success' && <>
                 <Button plain onClick={handleClose}>Cancel</Button>
-                <Button onClick={handleSave} disabled={selectedTeam == null}>Save</Button>
+                <Button onClick={handleSave} disabled={selectedMemberId == null}>Save</Button>
             </>}
+        </DialogActions>
+    </Dialog>
+}
+
+interface UpdateAccessKeyDialogProps {
+    accessKey: AccessKey
+    open: boolean
+    onClose: () => void
+    onUpdate: (accessKey: AccessKeyUpdate) => void
+}
+
+function UpdateAccessKeyDialogProps({ accessKey: { id, label, primary }, open, onClose, onUpdate }: UpdateAccessKeyDialogProps) {
+    const [updated, setUpdated] = useState<AccessKeyUpdate>({ id, label, primary })
+
+    function handleUpdate() {
+        onUpdate(updated)
+        onClose()
+    }
+
+    return <Dialog open={open} onClose={onClose}>
+        <DialogTitle>Update Access Key</DialogTitle>
+        <DialogBody>
+            <Field className="mb-4">
+                <Label>Label</Label>
+                
+                <Input
+                    value={updated.label}
+                    onChange={ev => setUpdated(prev => ({...prev, label: ev.target.value}))}
+                />
+            </Field>
+            <CheckboxField className="mb-4">
+                <Checkbox checked={updated.primary} onChange={(checked) => setUpdated(prev => ({ ...prev, primary: checked }))}/>
+                <Label>Make primary</Label>
+                <Description>Mark this access key as primary (default) access key.</Description>
+            </CheckboxField>
+        </DialogBody>
+        <DialogActions>
+            <Button plain onClick={onClose}>Cancel</Button>
+            <Button onClick={handleUpdate}>Update</Button>
         </DialogActions>
     </Dialog>
 }
@@ -280,12 +409,17 @@ interface DeleteAccessKeyDialogProps {
 }
 
 function DeleteAccessKeyDialog({ accessKey, open, onClose, onDelete }: DeleteAccessKeyDialogProps) {
+    function handleDelete() {
+        onDelete(accessKey.id)
+        onClose()
+    }
+
     return <Dialog open={open} onClose={onClose}>
         <DialogTitle>Delete Access Key</DialogTitle>
         <DialogDescription>Confirm deletion of access key '{accessKey.label}'.</DialogDescription>
         <DialogActions>
             <Button plain onClick={onClose}>Cancel</Button>
-            <Button color='red' onClick={() => onDelete(accessKey.id)}>Delete</Button>
+            <Button color='red' onClick={handleDelete}>Delete</Button>
         </DialogActions>
     </Dialog>
 }

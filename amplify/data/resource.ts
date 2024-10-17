@@ -6,9 +6,10 @@ const schema = a.schema({
         .model({
             key: a.string().required(),
             label: a.string().required(),
+            memberId: a.integer().required(),
             teamId: a.integer().required(),
             teamName: a.string().required(),
-            primary: a.boolean().default(false)
+            primary: a.boolean().required()
         })
         .authorization((allow) => [allow.owner()]),
     Todo: a
