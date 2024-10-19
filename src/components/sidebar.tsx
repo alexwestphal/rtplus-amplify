@@ -6,11 +6,10 @@ import { useState } from 'react'
 
 import { useAuthenticator } from '@aws-amplify/ui-react'
 import { Dialog, DialogBackdrop, DialogPanel, Menu, MenuButton, MenuItem, MenuItems, TransitionChild } from '@headlessui/react'
+import { ArrowLeftStartOnRectangleIcon, QuestionMarkCircleIcon, UserIcon } from '@heroicons/react/20/solid'
 import {
     CalendarIcon,
     ChartPieIcon,
-    DocumentDuplicateIcon,
-    FolderIcon,
     HomeIcon,
     UsersIcon,
     UserCircleIcon,
@@ -99,25 +98,43 @@ function SidebarBody() {
                 </MenuButton>
                 <MenuItems
                     transition
-                    className="absolute right-0 z-10 mt-2.5 w-56 origin-top-right rounded-md bg-white py-2 shadow-lg ring-1 ring-gray-900/5 transition focus:outline-none data-[closed]:scale-95 data-[closed]:transform data-[closed]:opacity-0 data-[enter]:duration-100 data-[leave]:duration-75 data-[enter]:ease-out data-[leave]:ease-in"
+                    className={clsx(
+                        "absolute right-0 z-10 mt-2 w-56 origin-top-right divide-y divide-gray-100 rounded-md bg-white py-2 shadow-lg ring-1 ring-gray-900/5 transition focus:outline-none ",
+                        "data-[closed]:scale-95 data-[closed]:transform data-[closed]:opacity-0 data-[enter]:duration-100 data-[leave]:duration-75 data-[enter]:ease-out data-[leave]:ease-in"
+                    )}
                 >
-                    <MenuItem>
-                        <Link
-                            href="/user-settings"
-                            className="block px-3 py-1 text-sm leading-6 text-gray-900 data-[focus]:bg-gray-50"
-                        >
-                            Your profile
-                        </Link>
-                    </MenuItem>
-                    <Divider/>
-                    <MenuItem>
-                        <a
-                            onClick={handleSignOut}
-                            className="block px-3 py-1 text-sm leading-6 text-gray-900 data-[focus]:bg-gray-50 cursor-pointer"
-                        >
-                            Sign out
-                        </a>
-                    </MenuItem>
+                    <div className="py-1">
+                        <MenuItem>
+                            <Link
+                                href="/user-settings"
+                                className="group flex items-center px-4 py-2 text-sm text-gray-700 data-[focus]:bg-gray-100 data-[focus]:text-gray-900"
+                            >
+                                <UserIcon aria-hidden="true" className="mr-3 h-5 w-5 text-gray-400 group-hover:text-gray-500"/>
+                                My Settings
+                            </Link>
+                        </MenuItem>
+                        <MenuItem>
+                            <Link
+                                href="/about"
+                                className="group flex items-center px-4 py-2 text-sm text-gray-700 data-[focus]:bg-gray-100 data-[focus]:text-gray-900"
+                            >
+                                <QuestionMarkCircleIcon aria-hidden="true" className="mr-3 h-5 w-5 text-gray-400 group-hover:text-gray-500"/>
+                                About
+                            </Link>
+                        </MenuItem>
+                        
+                    </div>
+                    <div className="py-1">
+                        <MenuItem>
+                            <a
+                                onClick={handleSignOut}
+                                className="group flex items-center px-4 py-2 text-sm text-gray-700 data-[focus]:bg-gray-100 data-[focus]:text-gray-900 cursor-pointer"
+                            >
+                                <ArrowLeftStartOnRectangleIcon aria-hidden="true" className="mr-3 h-5 w-5 rotate-180 text-gray-400 group-hover:text-gray-500"/>
+                                Sign out
+                            </a>
+                        </MenuItem>
+                    </div>
                 </MenuItems>
             </Menu>
         </div>
