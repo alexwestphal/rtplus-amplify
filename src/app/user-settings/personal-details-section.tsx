@@ -21,7 +21,7 @@ export default function PersonalDetailsSection() {
 
     const accessKeysQuery = useQuery({ queryKey: ['d4hAccessKeys'], queryFn: async () => {
         const { data: accessKeys } = await amplifyClient.models.D4HAccessKey.list()
-            return accessKeys
+        return accessKeys
     }})
 
     const accessKey = accessKeysQuery.data?.find(accessKey => accessKey.primary)
@@ -51,8 +51,8 @@ export default function PersonalDetailsSection() {
                 </p>
             </div>
         </div>
-        {(accessKeysQuery.isLoading || memberQuery.isLoading) && <div role="status" className="max-w-full h-20 mt-4 rounded-md bg-gray-200 dark:bg-gray-700 animate-pulse"/>}
-        {(accessKeysQuery.isFetched && !accessKey) && <Alert className="mt-4" severity="warning" title="Not Connected">
+        {(accessKeysQuery.isPending || memberQuery.isPending) && <div role="status" className="max-w-full h-20 mt-4 rounded-md bg-gray-200 dark:bg-gray-700 animate-pulse"/>}
+        {(accessKeysQuery.isSuccess && !accessKey) && <Alert className="mt-4" severity="warning" title="Not Connected">
             A configured primary D4H access key is required to fetch this data.
         </Alert>}
         {member && <Card className="mt-4 px-4">

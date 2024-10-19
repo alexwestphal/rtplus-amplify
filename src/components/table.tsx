@@ -92,10 +92,12 @@ export function TableRow({ href, target, title, className, ...props }: TableRowP
     </TableRowContext.Provider>
 }
 
+type TableHeaderProps = { align?: 'left' | 'right' | 'center', order?: 'ascending' | "descending" | "none", } & React.ComponentPropsWithoutRef<'th'>
+
 /**
  * TableHeader component that extends the JSX `<th>` element.
  */
-export function TableHeader({ className, ...props }: React.ComponentPropsWithoutRef<'th'>) {
+export function TableHeader({ align, children, className, order, ...props }: TableHeaderProps) {
     let { bleed, grid } = useContext(TableContext)
 
     return <th
@@ -104,9 +106,24 @@ export function TableHeader({ className, ...props }: React.ComponentPropsWithout
             className,
             'border-b border-b-zinc-950/10 px-4 py-2 font-medium first:pl-[var(--gutter,theme(spacing.2))] last:pr-[var(--gutter,theme(spacing.2))] dark:border-b-white/10',
             grid && 'border-l border-l-zinc-950/5 first:border-l-0 dark:border-l-white/5',
-            !bleed && 'sm:first:pl-1 sm:last:pr-1'
+            !bleed && 'sm:first:pl-1 sm:last:pr-1',
         )}
-    />
+    >
+        <div className={clsx(
+            'flex items-center',
+            align == 'left' && 'justify-start',
+            align == 'right' && 'justify-end',
+            align == 'center' && 'justify-center'
+        )}>
+            <div>{children}</div>
+            {order ? <a href="#">
+                <svg className="w-3 h-3 ms-1.5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24">
+                    <path className="text-gray-800" d="M8.574 11.024h6.852a2.075 2.075 0 0 0 1.847-1.086 1.9 1.9 0 0 0-.11-1.986L13.736 2.9a2.122 2.122 0 0 0-3.472 0L6.837 7.952a1.9 1.9 0 0 0-.11 1.986 2.074 2.074 0 0 0 1.847 1.086Z"/>
+                    <path className="text-gray-800" d="M15.426 12.976H8.574a2.072 2.072 0 0 0-1.847 1.087 1.9 1.9 0 0 0 .11 1.985l3.426 5.05a2.123 2.123 0 0 0 3.472 0l3.427-5.05a1.9 1.9 0 0 0 .11-1.985 2.074 2.074 0 0 0-1.846-1.087Z"/>
+                </svg>
+            </a> : null}
+        </div>
+    </th>
 }
 
 

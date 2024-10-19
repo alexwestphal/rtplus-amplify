@@ -67,7 +67,7 @@ export interface MemberResponse {
     role: ResourceId<'Role'>,
     secondaryEmergencyContact: EmergencyContact,
     signedTandC: DateString | null,
-    status: string,
+    status: MemberStatusType,
     teamAgreementSigned: string | null,
     owner: ResourceId<'Team'>,
     updatedAt: string,
@@ -88,3 +88,5 @@ export interface EmergencyContact {
     secondaryPhone: string
     relation: string
 }
+
+export type MemberStatusType = 'OPERATIONAL' | 'NON_OPERATIONAL' | 'OBSERVER' | 'RETIRED'
