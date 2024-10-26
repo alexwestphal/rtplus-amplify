@@ -9,9 +9,9 @@ export interface MemberStatusProps {
 
 export function MemberStatus({status}: MemberStatusProps) {
     if(status == 'OPERATIONAL') {
-        return <span className="text-green-700">YES</span>
+        return <span className="text-green-700">Operational</span>
     } else if(status == 'NON_OPERATIONAL') {
-        return <span className="text-orange-700">NO</span>
+        return <span className="text-orange-700">Non-operational</span>
     } else if(status == 'OBSERVER') {
         return <span>Observer</span>
     } else if(status == 'RETIRED') {

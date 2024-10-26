@@ -16,29 +16,33 @@ export function CheckboxGroup({ className, ...props }: React.ComponentPropsWitho
             // With descriptions
             'has-[[data-slot=description]]:space-y-6 [&_[data-slot=label]]:has-[[data-slot=description]]:font-medium'
         )}
-        />
+    />
 }
 
 
 export type CheckboxFieldProps = { className?: string } & Omit<Headless.FieldProps, 'className'>
 
+/**
+ * CheckboxField component derived from Catalyst UI Kit.
+ * Built atop a {@link https://headlessui.com/react/checkbox#field|Headless Field}
+ */
 export function CheckboxField({ className, ...props }: CheckboxFieldProps) {
-  return <Headless.Field
-      data-slot="field"
-      {...props}
-      className={clsx(
-        className,
-        // Base layout
-        'grid grid-cols-[1.125rem_1fr] items-center gap-x-4 gap-y-1 sm:grid-cols-[1rem_1fr]',
-        // Control layout
-        '[&>[data-slot=control]]:col-start-1 [&>[data-slot=control]]:row-start-1 [&>[data-slot=control]]:justify-self-center',
-        // Label layout
-        '[&>[data-slot=label]]:col-start-2 [&>[data-slot=label]]:row-start-1 [&>[data-slot=label]]:justify-self-start',
-        // Description layout
-        '[&>[data-slot=description]]:col-start-2 [&>[data-slot=description]]:row-start-2',
-        // With description
-        '[&_[data-slot=label]]:has-[[data-slot=description]]:font-medium'
-      )}
+    return <Headless.Field
+        data-slot="field"
+        {...props}
+        className={clsx(
+            className,
+            // Base layout
+            'grid grid-cols-[1.125rem_1fr] items-center gap-x-4 gap-y-1 sm:grid-cols-[1rem_1fr]',
+            // Control layout
+            '[&>[data-slot=control]]:col-start-1 [&>[data-slot=control]]:row-start-1 [&>[data-slot=control]]:justify-self-center',
+            // Label layout
+            '[&>[data-slot=label]]:col-start-2 [&>[data-slot=label]]:row-start-1 [&>[data-slot=label]]:justify-self-start',
+            // Description layout
+            '[&>[data-slot=description]]:col-start-2 [&>[data-slot=description]]:row-start-2',
+            // With description
+            '[&_[data-slot=label]]:has-[[data-slot=description]]:font-medium'
+        )}
     />
 }
 
@@ -115,6 +119,13 @@ type Color = keyof typeof colors
 
 export type CheckboxProps = { color?: Color, className?: string } & Omit<Headless.CheckboxProps, 'className'>
 
+/**
+ * Displays a nicely styled checkbox.
+ * 
+ * @param color - The checkbox color.
+ * 
+ * Built atop a {@link https://headlessui.com/react/checkbox#checkbox|Headless Checkbox}
+ */
 export function Checkbox({ color = 'dark/zinc', className, ...props }: CheckboxProps) {
     return <Headless.Checkbox
         data-slot="control"

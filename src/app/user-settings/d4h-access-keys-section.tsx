@@ -166,17 +166,17 @@ export default function D4HAccessKeysSection() {
             </div>
         </div>
         
-        <Card className="mt-4 px-4">
+        <Card className="mt-4 px-6 sm:px-8">
             { query.isError && <div>Error Loading D4H Access Key</div>}
             { query.isLoading && <div>Loading D4H Access Keys...</div>}
             { query.isSuccess && query.data && (query.data.length
-                ? <Table>
+                ? <Table bleed className="[--gutter:theme(spacing.6)] sm:[--gutter:theme(spacing.8)]">
                     <TableHead>
                         <TableRow>
                             <TableHeader>Label</TableHeader>
                             <TableHeader>Team</TableHeader>
                             <TableHeader>Created At</TableHeader>
-                            <TableHeader className="text-center">Primary</TableHeader>
+                            <TableHeader align="center">Primary</TableHeader>
                             <TableHeader>
                                 <span className="sr-only">Edit</span>
                             </TableHeader>
@@ -188,7 +188,7 @@ export default function D4HAccessKeysSection() {
                                 <TableCell className="text-gray-900 font-medium">{accessKey.label}</TableCell>
                                 <TableCell className="text-gray-500">{accessKey.teamName}</TableCell>
                                 <TableCell className="text-gray-500">{accessKey.createdAt}</TableCell>
-                                <TableCell className="text-gray-500 text-center">{accessKey.primary ? "YES" : null}</TableCell>
+                                <TableCell className="text-gray-500" align="center">{accessKey.primary ? "YES" : null}</TableCell>
                                 <TableCell className="text-right">
                                     <Button plain onClick={() => setUpdateSubject(accessKey)}>
                                         Update<span className="sr-only"> Access Key</span>

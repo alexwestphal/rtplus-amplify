@@ -8,7 +8,14 @@ import clsx from 'clsx'
 import type React from 'react'
 import { createContext, useContext, useState } from 'react'
 
+import { ArrowLongDownIcon, ArrowLongUpIcon, Bars3BottomRightIcon, CheckIcon, ChevronDownIcon, EllipsisVerticalIcon, EyeSlashIcon } from '@heroicons/react/20/solid'
+
+import { Column } from '@tanstack/react-table'
+
+import { Dropdown, DropdownButton, DropdownDivider, DropdownHeader, DropdownHeading, DropdownItem, DropdownLabel, DropdownMenu, DropdownSecondaryIcon, DropdownSection } from './dropdown'
 import Link from './link'
+import Button from './button'
+
 
 const TableContext = createContext<{ bleed: boolean; dense: boolean; grid: boolean; striped: boolean }>({
   bleed: false,
@@ -92,45 +99,130 @@ export function TableRow({ href, target, title, className, ...props }: TableRowP
     </TableRowContext.Provider>
 }
 
-type TableHeaderProps = { align?: 'left' | 'right' | 'center', order?: 'ascending' | "descending" | "none", } & React.ComponentPropsWithoutRef<'th'>
+type TableHeaderProps = { align?: 'left' | 'right' | 'center' } & React.ComponentPropsWithoutRef<'th'>
 
 /**
  * TableHeader component that extends the JSX `<th>` element.
  */
-export function TableHeader({ align, children, className, order, ...props }: TableHeaderProps) {
+export function TableHeader({ align, children, className, ...props }: TableHeaderProps) {
     let { bleed, grid } = useContext(TableContext)
 
     return <th
         {...props}
         className={clsx(
             className,
-            'border-b border-b-zinc-950/10 px-4 py-2 font-medium first:pl-[var(--gutter,theme(spacing.2))] last:pr-[var(--gutter,theme(spacing.2))] dark:border-b-white/10',
+            'border-b border-b-zinc-950/10 font-medium dark:border-b-white/10',
+            'px-4 py-2', //'first:pl-[var(--gutter,theme(spacing.2))] last:pr-[var(--gutter,theme(spacing.2))]',
             grid && 'border-l border-l-zinc-950/5 first:border-l-0 dark:border-l-white/5',
             !bleed && 'sm:first:pl-1 sm:last:pr-1',
+            
         )}
     >
         <div className={clsx(
-            'flex items-center',
+            'flex',
             align == 'left' && 'justify-start',
-            align == 'right' && 'justify-end',
-            align == 'center' && 'justify-center'
+            align == 'center' && 'justify-center',
+            align == 'right' && 'justify-end'
         )}>
-            <div>{children}</div>
-            {order ? <a href="#">
-                <svg className="w-3 h-3 ms-1.5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24">
-                    <path className="text-gray-800" d="M8.574 11.024h6.852a2.075 2.075 0 0 0 1.847-1.086 1.9 1.9 0 0 0-.11-1.986L13.736 2.9a2.122 2.122 0 0 0-3.472 0L6.837 7.952a1.9 1.9 0 0 0-.11 1.986 2.074 2.074 0 0 0 1.847 1.086Z"/>
-                    <path className="text-gray-800" d="M15.426 12.976H8.574a2.072 2.072 0 0 0-1.847 1.087 1.9 1.9 0 0 0 .11 1.985l3.426 5.05a2.123 2.123 0 0 0 3.472 0l3.427-5.05a1.9 1.9 0 0 0 .11-1.985 2.074 2.074 0 0 0-1.846-1.087Z"/>
-                </svg>
-            </a> : null}
+            {children}
         </div>
     </th>
 }
 
+type ColumnHeaderProps = {
+    column: Column<any, any>
+    onToggleGrouping: () => void
+ } & React.ComponentPropsWithoutRef<'th'>
+
+export function ColumnHeader({ children, className, column, onToggleGrouping, ...props }: ColumnHeaderProps) {
+    let { bleed, grid } = useContext(TableContext)
+
+    const isSorted = column.getIsSorted()
+
+    return <th
+            {...props}
+            className={clsx(
+                className,
+                'border-b border-b-zinc-950/10 font-medium dark:border-b-white/10',
+                grid && 'border-l border-l-zinc-950/5 first:border-l-0 dark:border-l-white/5',
+            )}
+        >
+            <div className={clsx(
+                'w-full flex items-center justify-between',
+                'pl-4 pr-2 py-1',
+            )}>
+                <div>{children}</div>
+                <Dropdown>
+                    <DropdownButton as={Button} plain>
+                        <EllipsisVerticalIcon aria-hidden="true" className="ml-2 h-5 w-5 text-gray-400 group-hover:text-gray-500" />
+                    </DropdownButton>
+                    <DropdownMenu anchor="bottom end" className="divide-y divide-zinc-950/10">
+                        <DropdownHeader>
+                        <div className="pr-6">
+                            <div className="text-xs text-zinc-500 dark:text-zinc-400">Column</div>
+                            <div className="text-sm/7 font-semibold text-zinc-800 dark:text-white">{column.id}</div>
+                        </div>
+                        </DropdownHeader>
+                        {column.getCanSort() && <>
+                            <DropdownSection>
+                                <DropdownHeading>Sort</DropdownHeading>
+                                <DropdownItem onClick={() => column.toggleSorting()}>
+                                    <ArrowLongUpIcon/>
+                                    <DropdownLabel>Ascending</DropdownLabel>
+                                    {isSorted == 'asc' && <CheckIcon/>}
+                                </DropdownItem>
+                                <DropdownItem onClick={() => column.toggleSorting(true)}>
+                                    <ArrowLongDownIcon/>
+                                    <DropdownLabel>Descending</DropdownLabel>
+                                    {isSorted == 'desc' && <CheckIcon/>}
+                                </DropdownItem>
+                            </DropdownSection>
+                        </>}
+                        { (column.getCanHide() || column.getCanGroup()) && <DropdownSection>
+                            { column.getCanGroup() && <DropdownItem onClick={onToggleGrouping}>
+                                <Bars3BottomRightIcon/>
+                                <DropdownLabel>Group by</DropdownLabel>
+                                {column.getIsGrouped() && <CheckIcon/>}
+                            </DropdownItem>}
+                            { column.getCanHide() && <DropdownItem onClick={() => column.toggleVisibility()}>
+                                <EyeSlashIcon/>
+                                <DropdownLabel>Hide Column</DropdownLabel>
+                            </DropdownItem>}
+                        </DropdownSection>}
+                    </DropdownMenu>
+                </Dropdown>
+            </div>
+            
+    </th>
+
+    return <Dropdown
+        as="th" 
+        {...props}
+        className={clsx(
+            className,
+            'border-b border-b-zinc-950/10 font-medium dark:border-b-white/10',
+            //'px-4 py-2', //'first:pl-[var(--gutter,theme(spacing.2))] last:pr-[var(--gutter,theme(spacing.2))]',
+            grid && 'border-l border-l-zinc-950/5 first:border-l-0 dark:border-l-white/5',
+        )}
+    >
+        <DropdownButton className={clsx(
+            'w-full flex items-center justify-between',
+            'px-4 py-2',
+            'text-gray-700 hover:bg-gray-50 hover:text-indigo-600',
+        )}>
+            <div>{children}</div>
+            <EllipsisVerticalIcon aria-hidden="true" className="ml-2 h-5 w-5 text-gray-400 group-hover:text-gray-500" />
+        </DropdownButton>
+       
+    </Dropdown>
+}
+
+export type TableCellProps = React.ComponentPropsWithoutRef<'td'>
 
 /**
  * TableCell component that extends the JSX `td` element.
  */
-export function TableCell({ className, children, ...props }: React.ComponentPropsWithoutRef<'td'>) {
+export function TableCell({ className, children, ...props }: TableCellProps) {
     let { bleed, dense, grid, striped } = useContext(TableContext)
     let { href, target, title } = useContext(TableRowContext)
     let [cellRef, setCellRef] = useState<HTMLElement | null>(null)
@@ -140,7 +232,7 @@ export function TableCell({ className, children, ...props }: React.ComponentProp
         {...props}
         className={clsx(
             className,
-            'relative px-4 first:pl-[var(--gutter,theme(spacing.2))] last:pr-[var(--gutter,theme(spacing.2))]',
+            'relative px-4', //'first:pl-[var(--gutter,theme(spacing.2))] last:pr-[var(--gutter,theme(spacing.2))]',
             !striped && 'border-b border-zinc-950/5 dark:border-white/5',
             grid && 'border-l border-l-zinc-950/5 first:border-l-0 dark:border-l-white/5',
             dense ? 'py-2.5' : 'py-4',
@@ -157,4 +249,16 @@ export function TableCell({ className, children, ...props }: React.ComponentProp
         />}
         {children}
     </td>
+}
+
+export type TableControls = React.ComponentPropsWithoutRef<'div'>
+
+export function TableControls({className, ...props}: TableControls) {
+    return <div
+        {...props}
+        className={clsx(className, 
+            'mt-4 mb-2',
+            'flex gap-2',
+        )}
+    />
 }

@@ -5,7 +5,7 @@ import clsx from 'clsx'
 import { useState } from 'react'
 
 import { useAuthenticator } from '@aws-amplify/ui-react'
-import { Dialog, DialogBackdrop, DialogPanel, Menu, MenuButton, MenuItem, MenuItems, TransitionChild } from '@headlessui/react'
+import { Dialog, DialogBackdrop, DialogPanel, Menu, MenuButton, TransitionChild } from '@headlessui/react'
 import { ArrowLeftStartOnRectangleIcon, QuestionMarkCircleIcon, UserIcon } from '@heroicons/react/20/solid'
 import {
     CalendarIcon,
@@ -18,9 +18,11 @@ import {
 
 
 import Divider from './divider'
+import { Dropdown, DropdownButton, DropdownDivider, DropdownItem, DropdownLabel, DropdownMenu, DropdownSection } from './dropdown'
 import Link from './link'
 import Logo from './logo'
 import TopBar from './topbar'
+
 
 
 const navigation = [
@@ -69,7 +71,7 @@ export default function Sidebar() {
         </Dialog>
 
         {/* Static sidebar for desktop */}
-        <div className="hidden lg:fixed lg:inset-y-0 lg:z-50 lg:flex lg:w-72 lg:flex-col">
+        <div className="hidden lg:fixed lg:inset-y-0 lg:flex lg:w-72 lg:flex-col">
             <SidebarBody/>
         </div>
 
@@ -91,52 +93,31 @@ function SidebarBody() {
             <div className="flex-grow">
                 <Logo className="h-10"/>
             </div>
-            <Menu as="div" className="relative">
-                <MenuButton className="rouded-md text-gray-400 hover:bg-gray-100 p-2">
+            <Dropdown as="div">
+                <DropdownButton className="rouded-md text-gray-400 hover:bg-gray-100 p-2">
                     <span className="sr-only">Open user menu</span>
                     <UserCircleIcon aria-hidden="true" className="h-6 w-6" />
-                </MenuButton>
-                <MenuItems
-                    transition
-                    className={clsx(
-                        "absolute right-0 z-10 mt-2 w-56 origin-top-right divide-y divide-gray-100 rounded-md bg-white py-2 shadow-lg ring-1 ring-gray-900/5 transition focus:outline-none ",
-                        "data-[closed]:scale-95 data-[closed]:transform data-[closed]:opacity-0 data-[enter]:duration-100 data-[leave]:duration-75 data-[enter]:ease-out data-[leave]:ease-in"
-                    )}
-                >
-                    <div className="py-1">
-                        <MenuItem>
-                            <Link
-                                href="/user-settings"
-                                className="group flex items-center px-4 py-2 text-sm text-gray-700 data-[focus]:bg-gray-100 data-[focus]:text-gray-900"
-                            >
-                                <UserIcon aria-hidden="true" className="mr-3 h-5 w-5 text-gray-400 group-hover:text-gray-500"/>
-                                My Settings
-                            </Link>
-                        </MenuItem>
-                        <MenuItem>
-                            <Link
-                                href="/about"
-                                className="group flex items-center px-4 py-2 text-sm text-gray-700 data-[focus]:bg-gray-100 data-[focus]:text-gray-900"
-                            >
-                                <QuestionMarkCircleIcon aria-hidden="true" className="mr-3 h-5 w-5 text-gray-400 group-hover:text-gray-500"/>
-                                About
-                            </Link>
-                        </MenuItem>
-                        
-                    </div>
-                    <div className="py-1">
-                        <MenuItem>
-                            <a
-                                onClick={handleSignOut}
-                                className="group flex items-center px-4 py-2 text-sm text-gray-700 data-[focus]:bg-gray-100 data-[focus]:text-gray-900 cursor-pointer"
-                            >
-                                <ArrowLeftStartOnRectangleIcon aria-hidden="true" className="mr-3 h-5 w-5 rotate-180 text-gray-400 group-hover:text-gray-500"/>
-                                Sign out
-                            </a>
-                        </MenuItem>
-                    </div>
-                </MenuItems>
-            </Menu>
+                </DropdownButton>
+                <DropdownMenu anchor="top end" className='z-10'>
+                    <DropdownSection>
+                        <DropdownItem href="/user-settings">
+                            <UserIcon/>
+                            <DropdownLabel>My Settings</DropdownLabel>
+                        </DropdownItem>
+                        <DropdownItem href="/about">
+                            <QuestionMarkCircleIcon/>
+                            <DropdownLabel>About</DropdownLabel>
+                        </DropdownItem>
+                    </DropdownSection>
+                    <DropdownDivider/>
+                    <DropdownSection>
+                        <DropdownItem onClick={handleSignOut}>
+                            <ArrowLeftStartOnRectangleIcon/>
+                            <DropdownLabel>Sign out</DropdownLabel>
+                        </DropdownItem>
+                    </DropdownSection>
+                </DropdownMenu>
+            </Dropdown>
         </div>
         <Divider className="mb-2"/>
         <nav className="flex flex-1 flex-col">
@@ -145,7 +126,7 @@ function SidebarBody() {
                     <ul role="list" className=" space-y-1">
                         {navigation.map((item) => (
                             <li key={item.name}>
-                                <a
+                                <Link
                                     href={item.href}
                                     className={clsx(
                                         item.current
@@ -162,7 +143,7 @@ function SidebarBody() {
                                         )}
                                     />
                                     {item.name}
-                                </a>
+                                </Link>
                             </li>
                         ))}
                     </ul>

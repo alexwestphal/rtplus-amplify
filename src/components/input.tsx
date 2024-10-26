@@ -8,11 +8,12 @@ import React, { forwardRef } from 'react'
 import * as Headless from '@headlessui/react'
 
 
-export function InputGroup({ children }: React.ComponentPropsWithoutRef<'span'>) {
+export function InputGroup({ className, children }: React.ComponentPropsWithoutRef<'span'>) {
   return (
     <span
       data-slot="control"
       className={clsx(
+        className,
         'relative isolate block',
         '[&_input]:has-[[data-slot=icon]:first-child]:pl-10 [&_input]:has-[[data-slot=icon]:last-child]:pr-10 sm:[&_input]:has-[[data-slot=icon]:first-child]:pl-8 sm:[&_input]:has-[[data-slot=icon]:last-child]:pr-8',
         '[&>[data-slot=icon]]:pointer-events-none [&>[data-slot=icon]]:absolute [&>[data-slot=icon]]:top-3 [&>[data-slot=icon]]:z-10 [&>[data-slot=icon]]:size-5 sm:[&>[data-slot=icon]]:top-2.5 sm:[&>[data-slot=icon]]:size-4',
