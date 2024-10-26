@@ -1,5 +1,5 @@
 
-import Heading from '@/components/heading'
+import Heading from '@/components/catalyst/heading'
 
 export default function StyleTestPage() {
 

@@ -7,7 +7,7 @@ import React, { forwardRef } from 'react'
 
 import * as Headless from '@headlessui/react'
 
-import Link from './link'
+import Link from '../link'
 
 const styles = {
     base: [

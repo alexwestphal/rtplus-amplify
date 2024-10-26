@@ -2,8 +2,8 @@
 import { amplifyClient, type Schema } from '@/lib/amplify-client'
 
 import Alert from '@/components/alert'
-import Divider from '@/components/divider'
-import Heading from '@/components/heading'
+import Divider from '@/components/catalyst/divider'
+import Heading from '@/components/catalyst/heading'
 
 import D4HAccessKeysSection from './d4h-access-keys-section'
 import PersonalDetailsSection from './personal-details-section'

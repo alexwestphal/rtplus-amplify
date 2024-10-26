@@ -2,7 +2,7 @@
 import type { Metadata } from 'next'
 import { Inter, Roboto_Mono } from 'next/font/google'
 
-import ConfigureAmplifyClientSide from '@/components/configure-amplify'
+import ConfigureAmplifyClientSide from '@/components/catalyst/configure-amplify'
 import Sidebar from '@/components/sidebar'
 
 import './globals.css'

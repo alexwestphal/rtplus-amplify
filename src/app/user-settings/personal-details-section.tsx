@@ -7,9 +7,9 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 
 import Alert from '@/components/alert'
 import Card from '@/components/card'
-import { DescriptionDetails, DescriptionList, DescriptionTerm } from '@/components/description-list'
-import Divider from '@/components/divider'
-import Heading from '@/components/heading'
+import { DescriptionDetails, DescriptionList, DescriptionTerm } from '@/components/catalyst/description-list'
+import Divider from '@/components/catalyst/divider'
+import Heading from '@/components/catalyst/heading'
 
 import { Schema, amplifyClient } from '@/lib/amplify-client'
 import { D4hApi } from '@/lib/d4h-api/client'

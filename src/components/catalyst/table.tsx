@@ -13,7 +13,7 @@ import { ArrowLongDownIcon, ArrowLongUpIcon, Bars3BottomRightIcon, CheckIcon, Ch
 import { Column } from '@tanstack/react-table'
 
 import { Dropdown, DropdownButton, DropdownDivider, DropdownHeader, DropdownHeading, DropdownItem, DropdownLabel, DropdownMenu, DropdownSecondaryIcon, DropdownSection } from './dropdown'
-import Link from './link'
+import Link from '../link'
 import Button from './button'
 
 

@@ -17,8 +17,8 @@ import {
   } from '@heroicons/react/24/outline'
 
 
-import Divider from './divider'
-import { Dropdown, DropdownButton, DropdownDivider, DropdownItem, DropdownLabel, DropdownMenu, DropdownSection } from './dropdown'
+import Divider from './catalyst/divider'
+import { Dropdown, DropdownButton, DropdownDivider, DropdownItem, DropdownLabel, DropdownMenu, DropdownSection } from './catalyst/dropdown'
 import Link from './link'
 import Logo from './logo'
 import TopBar from './topbar'
