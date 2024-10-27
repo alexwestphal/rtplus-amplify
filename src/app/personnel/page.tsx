@@ -1,24 +1,22 @@
 'use client'
 
-import clsx from 'clsx'
 import React, { useMemo, useState } from 'react'
 
 import { MagnifyingGlassIcon } from '@heroicons/react/16/solid'
-import { CheckIcon, ChevronDownIcon, ChevronUpIcon } from '@heroicons/react/20/solid'
+import { CheckIcon, ChevronDownIcon } from '@heroicons/react/20/solid'
 
 import { useQueries, useQuery } from '@tanstack/react-query'
-import { ColumnDef, createColumnHelper, flexRender, getCoreRowModel, getExpandedRowModel, getFacetedRowModel, getFacetedUniqueValues, getFilteredRowModel, getGroupedRowModel, getSortedRowModel, InitialTableState, RowSelectionState, useReactTable } from '@tanstack/react-table'
+import { ColumnDef, createColumnHelper, getCoreRowModel, getExpandedRowModel, getFilteredRowModel, getGroupedRowModel, getSortedRowModel, RowSelectionState, useReactTable } from '@tanstack/react-table'
 
 import Button from '@/components/catalyst/button'
 import Card from '@/components/card'
-import { Checkbox } from '@/components/catalyst/checkbox'
+import { DataTable, TableControls } from '@/components/data-table'
 import { Dropdown, DropdownButton, DropdownItem, DropdownMenu } from '@/components/catalyst/dropdown'
 import Heading from '@/components/catalyst/heading'
 import Input, { InputGroup } from '@/components/catalyst/input'
 import { EmailLink, PhoneLink } from '@/components/link'
 import { MemberStatus } from '@/components/member-status'
 import { Skeleton } from '@/components/skeleton'
-import Table, { ColumnHeader, TableBody, TableCell, TableControls, TableHead, TableHeader, TableRow } from '@/components/catalyst/table'
 
 import { amplifyClient } from '@/lib/amplify-client'
 import { D4hApi } from '@/lib/d4h-api/client'
@@ -26,13 +24,9 @@ import { MemberResponse } from '@/lib/d4h-api/member-response'
 
 
 
-
 const columnHelper = createColumnHelper<MemberResponse>()
 
 export default function PersonnelPage() {
-
-    const [globalFilter, setGlobalFilter] = useState("")
-    const [rowSelection, setRowSelection] = useState<RowSelectionState>({})
 
     const accessKeysQuery = useQuery({ queryKey: ['d4hAccessKeys'], queryFn: async () => {
         const { data: accessKeys } = await amplifyClient.models.D4HAccessKey.list()
@@ -78,6 +72,13 @@ export default function PersonnelPage() {
         },
     })
 
+    function getTeamName(teamId: number) {
+        for(let accessKey of accessKeys) {
+            if(accessKey.teamId == teamId) return accessKey.teamName.replace("NZ Response Team", "NZRT")
+        }
+        return ""
+    }
+
     const columns = useMemo(() => [
         columnHelper.accessor('name', {
             header: 'Name',
@@ -91,13 +92,7 @@ export default function PersonnelPage() {
         columnHelper.accessor('owner.id', {
             id: 'team',
             header: 'Team',
-            cell: info => {
-                const teamId = info.getValue()
-                for(let accessKey of accessKeys) {
-                    if(accessKey.teamId == teamId) return accessKey.teamName.replace("NZ Response Team", "NZRT")
-                }
-                return ""
-            },
+            cell: info => getTeamName(info.getValue()),
             enableGlobalFilter: false,
             enableGrouping: true,
             enableSorting: true,
@@ -155,23 +150,18 @@ export default function PersonnelPage() {
                 email: false, phone: false
             },
             expanded: true,
+            globalFilter: "",
             grouping: [],
             sorting: [
                 { id: 'name', desc: false }
             ],
         },
-        state: {
-            globalFilter,
-            rowSelection,
-        },
-        onGlobalFilterChange: setGlobalFilter,
-        onRowSelectionChange: setRowSelection
     })
 
     return <div className="mx-auto max-w-7xl">
         <Heading level={1}>Personnel</Heading>
         <p className="mt-2 text-sm text-gray-700">
-            A list of all the personnel across the teams.
+            A list of all the personnel available to you via your configured D4H API Keys.
         </p>
         { (accessKeysQuery.isPending || membersQuery.isPending) && <Skeleton className="mt-4">Fetching Personnel</Skeleton>}
         { (accessKeysQuery.isSuccess && membersQuery.isSuccess) && membersQuery.data && <>
@@ -182,7 +172,7 @@ export default function PersonnelPage() {
                         name="search" 
                         placeholder="Search&hellip;" 
                         aria-label="Search"
-                        value={globalFilter}
+                        value={table.getState().globalFilter}
                         onChange={ev => table.setGlobalFilter(String(ev.target.value))}
                     />
                 </InputGroup>
@@ -204,88 +194,10 @@ export default function PersonnelPage() {
                         })}
                     </DropdownMenu>
                 </Dropdown>
-                <Button disabled onClick={() => { table.reset() }}>Reset</Button>
+                <Button onClick={() => { table.reset() }}>Reset</Button>
             </TableControls>
             <Card className="px-6 sm:px-8">
-                <Table dense bleed className="[--gutter:theme(spacing.6)] sm:[--gutter:theme(spacing.8)]">
-                    <TableHead>
-                        {table.getHeaderGroups().map(headerGroup => <TableRow key={headerGroup.id} className="divide-x divide-x-gray-400">
-                            <TableHeader>
-                                <Checkbox
-                                    color="zinc"
-                                    checked={table.getIsSomeRowsSelected() || table.getIsAllRowsSelected()}
-                                    indeterminate={table.getIsSomeRowsSelected()}
-                                    onChange={(checked) => table.toggleAllRowsSelected(checked)}
-                                />
-                            </TableHeader>
-                            {headerGroup.headers.map(header => {
-                                const columnDef = header.column.columnDef
-                                return <ColumnHeader
-                                    key={header.id} 
-                                    column={header.column}
-                                    onToggleGrouping={() => 
-                                        table.setGrouping(prev => prev.length == 0 ? [header.column.id] : [])
-                                    }
-                                >
-                                    {header.isPlaceholder ? null : flexRender(columnDef.header, header.getContext())}
-                                </ColumnHeader>
-                            })}
-                        </TableRow>)}
-                    </TableHead>
-                    <TableBody>
-                        {table.getRowModel().rows.map(row => {
-
-                            return <TableRow key={row.id}>
-                                <TableCell>
-                                <Checkbox
-                                    checked={row.getIsSelected()}
-                                    disabled={!row.getCanSelect()}
-                                    indeterminate={row.getIsSomeSelected()}
-                                    onChange={row.getToggleSelectedHandler()}
-                                />
-                                </TableCell>
-                                {row.getVisibleCells().map(cell => {
-                                    const columnDef = cell.column.columnDef
-                                    
-                                    if(cell.getIsGrouped()) {
-                                        return <TableCell 
-                                            key={cell.id}
-                                            className="border-b border-b-gray-500"
-                                            colSpan={table.getVisibleFlatColumns().length - cell.column.getIndex()}
-                                        >
-                                            <div className={clsx(
-                                                'flex items-center',
-                                                'font-bold'
-                                            )}>
-                                                {cell.getValue() == '' ? <span className="italic">EMPTY</span> : flexRender(columnDef.cell, cell.getContext()) }
-                                                <div className="grow"/>
-                                                
-                                                <div>( {row.subRows.length} )</div>
-                                                <Button plain className="ml-2 -mr-2" onClick={() => row.toggleExpanded()}>
-                                                    {row.getIsExpanded()
-                                                        ? <ChevronUpIcon className="ml-2 h-5 w-5 text-gray-400 group-hover:text-gray-500"/>
-                                                        : <ChevronDownIcon className="ml-2 h-5 w-5 text-gray-400 group-hover:text-gray-500"/>
-                                                    }
-                                                </Button>
-                                            </div>
-                                        </TableCell>
-
-                                    } else if(cell.getIsAggregated()) {
-                                        return null
-
-                                    } else if(cell.getIsPlaceholder()) {
-                                        return <TableCell key={columnDef.id}/>
-
-                                    } else {
-                                        return <TableCell key={cell.id} align={columnDef.meta?.align}>
-                                            {flexRender(columnDef.cell, cell.getContext())}
-                                        </TableCell>
-                                    }
-                                })}
-                        </TableRow>
-                        })}
-                    </TableBody>
-                </Table>
+                <DataTable table={table} dense bleed className="[--gutter:theme(spacing.6)] sm:[--gutter:theme(spacing.8)]"/>
             </Card>
         </>}
     </div>
