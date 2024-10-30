@@ -1,17 +1,17 @@
 'use client'
 
-import React, { useMemo, useState } from 'react'
+import React from 'react'
+import { ChevronDownIcon, SearchIcon } from 'lucide-react'
 
-import { MagnifyingGlassIcon } from '@heroicons/react/16/solid'
-import { CheckIcon, ChevronDownIcon } from '@heroicons/react/20/solid'
+import { CheckIcon } from '@heroicons/react/20/solid'
 
 import { useQueries, useQuery } from '@tanstack/react-query'
 import { ColumnDef, createColumnHelper, getCoreRowModel, getExpandedRowModel, getFilteredRowModel, getGroupedRowModel, getSortedRowModel, RowSelectionState, useReactTable } from '@tanstack/react-table'
 
-import Button from '@/components/catalyst/button'
+import { Button } from '@/components/catalyst/button'
 import Card from '@/components/card'
 import { DataTable, TableControls } from '@/components/data-table'
-import { Dropdown, DropdownButton, DropdownItem, DropdownMenu } from '@/components/catalyst/dropdown'
+import { Dropdown, DropdownButton, DropdownHeading, DropdownItem, DropdownMenu, DropdownSection } from '@/components/catalyst/dropdown'
 import Heading from '@/components/catalyst/heading'
 import Input, { InputGroup } from '@/components/catalyst/input'
 import { EmailLink, PhoneLink } from '@/components/link'
@@ -79,7 +79,7 @@ export default function PersonnelPage() {
         return ""
     }
 
-    const columns = useMemo(() => [
+    const columns = React.useMemo(() => [
         columnHelper.accessor('name', {
             header: 'Name',
             cell: info => info.getValue(),
@@ -136,7 +136,7 @@ export default function PersonnelPage() {
 
     const table = useReactTable({ 
         columns, 
-        data: membersQuery.data,
+        data: membersQuery.data ?? [],
         enableRowSelection: true,
         getCoreRowModel: getCoreRowModel(),
         getFilteredRowModel: getFilteredRowModel(),
@@ -167,7 +167,7 @@ export default function PersonnelPage() {
         { (accessKeysQuery.isSuccess && membersQuery.isSuccess) && membersQuery.data && <>
             <TableControls>
                 <InputGroup className="w-96">
-                    <MagnifyingGlassIcon/>
+                    <SearchIcon data-slot="icon" className="size-4"/>
                     <Input
                         name="search" 
                         placeholder="Search&hellip;" 
@@ -179,19 +179,22 @@ export default function PersonnelPage() {
                 <Dropdown>
                     <DropdownButton as={Button} color="white">
                         Columns
-                        <ChevronDownIcon aria-hidden="true" className="ml-2 h-5 w-5 text-gray-400 group-hover:text-gray-500" />
+                        <ChevronDownIcon aria-hidden="true" className="ml-2 size-5 text-gray-400 group-hover:text-gray-500" />
                     </DropdownButton>
                     <DropdownMenu anchor="bottom end">
-                        {table.getAllColumns().map(column => {
-                            
-                            return column.getCanHide() ? <DropdownItem 
-                                key={column.id} 
-                                onClick={() => column.toggleVisibility()}
-                            >
-                                {column.columnDef.header as string}
-                                {column.getIsVisible() && <CheckIcon/>}
-                            </DropdownItem> : null
-                        })}
+                        <DropdownSection>
+                            <DropdownHeading>Column Visibility</DropdownHeading>
+                            {table.getAllColumns().map(column => {
+                                
+                                return column.getCanHide() ? <DropdownItem 
+                                    key={column.id} 
+                                    onClick={() => column.toggleVisibility()}
+                                >
+                                    {column.columnDef.header as string}
+                                    {column.getIsVisible() && <CheckIcon/>}
+                                </DropdownItem> : null
+                            })}
+                        </DropdownSection>
                     </DropdownMenu>
                 </Dropdown>
                 <Button onClick={() => { table.reset() }}>Reset</Button>

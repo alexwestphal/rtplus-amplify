@@ -6,20 +6,22 @@ import { useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 
 import Alert from '@/components/alert'
-import Button from '@/components/catalyst/button'
+import {Button} from '@/components/catalyst/button'
 import Card from '@/components/card'
 import { Checkbox, CheckboxField } from '@/components/catalyst/checkbox'
 import Dialog, { DialogTitle, DialogDescription, DialogBody, DialogActions } from '@/components/catalyst/dialog'
 import { Description, Field, Label } from '@/components/catalyst/field'
 import Heading from '@/components/catalyst/heading'
 import Input from '@/components/catalyst/input'
+import { Skeleton } from '@/components/skeleton'
 import Spinner from '@/components/spinner'
-import Table, { TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/catalyst/table'
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/catalyst/table'
 import Text from '@/components/catalyst/text'
 
 import { Schema, amplifyClient } from '@/lib/amplify-client'
 import { D4hFetchClient } from '@/lib/d4h-api/client'
 import type { WhoamiResponse } from '@/lib/d4h-api/whoami-response'
+
 
 
 
@@ -168,7 +170,7 @@ export default function D4HAccessKeysSection() {
         
         <Card className="mt-4 px-6 sm:px-8">
             { query.isError && <div>Error Loading D4H Access Key</div>}
-            { query.isLoading && <div>Loading D4H Access Keys...</div>}
+            { query.isLoading && <Skeleton>Loading D4H Access Keys</Skeleton>}
             { query.isSuccess && query.data && (query.data.length
                 ? <Table bleed className="[--gutter:theme(spacing.6)] sm:[--gutter:theme(spacing.8)]">
                     <TableHead>

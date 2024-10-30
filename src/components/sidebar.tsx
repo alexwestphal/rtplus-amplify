@@ -2,17 +2,14 @@
 'use client'
 
 import clsx from 'clsx'
+import { CalendarIcon, ChartPieIcon, CircleUserRoundIcon, HouseIcon, UsersIcon } from 'lucide-react'
+import { usePathname } from 'next/navigation'
 import { useState } from 'react'
 
 import { useAuthenticator } from '@aws-amplify/ui-react'
-import { Dialog, DialogBackdrop, DialogPanel, Menu, MenuButton, TransitionChild } from '@headlessui/react'
+import { Dialog, DialogBackdrop, DialogPanel, TransitionChild } from '@headlessui/react'
 import { ArrowLeftStartOnRectangleIcon, QuestionMarkCircleIcon, UserIcon } from '@heroicons/react/20/solid'
 import {
-    CalendarIcon,
-    ChartPieIcon,
-    HomeIcon,
-    UsersIcon,
-    UserCircleIcon,
     XMarkIcon
   } from '@heroicons/react/24/outline'
 
@@ -22,17 +19,19 @@ import { Dropdown, DropdownButton, DropdownDivider, DropdownItem, DropdownLabel,
 import Link from './link'
 import Logo from './logo'
 import TopBar from './topbar'
+import { IconButton } from './catalyst/button'
+
 
 
 
 const navigation = [
-    { name: 'Dashboard', href: '/', icon: HomeIcon, current: true },
-    { name: 'Personnel', href: 'personnel', icon: UsersIcon, current: false },
+    { name: 'Dashboard', href: '/', icon: HouseIcon },
+    { name: 'Personnel', href: '/personnel', icon: UsersIcon },
     // { name: 'Team', href: '#', icon: UsersIcon, current: false },
     // { name: 'Projects', href: '#', icon: FolderIcon, current: false },
-    { name: 'Calendar', href: '/calendar', icon: CalendarIcon, current: false },
+    { name: 'Calendar', href: '/calendar', icon: CalendarIcon },
     // { name: 'Documents', href: '#', icon: DocumentDuplicateIcon, current: false },
-    { name: 'Reports', href: '/reports', icon: ChartPieIcon, current: false },
+    { name: 'Reports', href: '/reports', icon: ChartPieIcon },
   ]
   const teams = [
     { id: 1, name: 'NZ-RT10 Christchurch', href: '#', initial: '10', current: false },
@@ -83,6 +82,7 @@ export default function Sidebar() {
 function SidebarBody() {
 
     const { user, signOut } = useAuthenticator((context) => [context.user])
+    const pathname = usePathname()
 
     async function handleSignOut() {
         signOut()
@@ -94,9 +94,8 @@ function SidebarBody() {
                 <Logo className="h-10"/>
             </div>
             <Dropdown as="div">
-                <DropdownButton className="rouded-md text-gray-400 hover:bg-gray-100 p-2">
-                    <span className="sr-only">Open user menu</span>
-                    <UserCircleIcon aria-hidden="true" className="h-6 w-6" />
+                <DropdownButton as={IconButton}>
+                    <CircleUserRoundIcon data-slot="icon"  className="size-5"/>
                 </DropdownButton>
                 <DropdownMenu anchor="top end" className='z-10'>
                     <DropdownSection>
@@ -124,28 +123,29 @@ function SidebarBody() {
             <ul role="list" className="flex flex-1 flex-col gap-y-7">
                 <li>
                     <ul role="list" className=" space-y-1">
-                        {navigation.map((item) => (
-                            <li key={item.name}>
+                        {navigation.map((item) => {
+                            const current = pathname == item.href
+                            return <li key={item.name}>
                                 <Link
                                     href={item.href}
                                     className={clsx(
-                                        item.current
+                                        current
                                         ? 'bg-gray-50 text-indigo-600'
                                         : 'text-gray-700 hover:bg-gray-50 hover:text-indigo-600',
-                                        'group flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6',
+                                        'group flex gap-x-3 items-center rounded-md p-2 text-sm font-semibold leading-6',
                                     )}
                                 >
                                     <item.icon
                                         aria-hidden="true"
                                         className={clsx(
-                                            item.current ? 'text-indigo-600' : 'text-gray-400 group-hover:text-indigo-600',
-                                            'h-6 w-6 shrink-0',
+                                            current ? 'text-indigo-600' : 'text-gray-400 group-hover:text-indigo-600',
+                                            'size-5 shrink-0',
                                         )}
                                     />
                                     {item.name}
                                 </Link>
                             </li>
-                        ))}
+                        })}
                     </ul>
                 </li>
                 <li>

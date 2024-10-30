@@ -9,3 +9,12 @@ import { twMerge } from 'tailwind-merge'
 export function cn(...inputs: ClassValue[]): string {
   return twMerge(clsx(inputs))
 }
+
+export function delay<R>(lazy: () => R, ms: number): Promise<R> {
+
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            resolve(lazy())
+        }, ms)
+    })
+}

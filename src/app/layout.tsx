@@ -29,7 +29,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <body className="h-full">
             <ConfigureAmplifyClientSide>
                 <Sidebar/>
-                <main className="lg:pl-72 py-10">
+                <main className="lg:pl-72 py-4">
                     <div className="px-4 sm:px-6 lg:px-8">{children}</div>
                 </main>
             </ConfigureAmplifyClientSide>
