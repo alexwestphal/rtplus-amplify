@@ -8,13 +8,7 @@ import clsx from 'clsx'
 import type React from 'react'
 import { createContext, useContext, useState } from 'react'
 
-import { ArrowLongDownIcon, ArrowLongUpIcon, Bars3BottomRightIcon, CheckIcon, ChevronDownIcon, EllipsisVerticalIcon, EyeSlashIcon } from '@heroicons/react/20/solid'
-
-import { Column } from '@tanstack/react-table'
-
-import { Dropdown, DropdownButton, DropdownDivider, DropdownHeader, DropdownHeading, DropdownItem, DropdownLabel, DropdownMenu, DropdownSecondaryIcon, DropdownSection } from './dropdown'
 import Link from '../link'
-import Button from './button'
 
 
 const TableContext = createContext<{ bleed: boolean; dense: boolean; grid: boolean; striped: boolean }>({
